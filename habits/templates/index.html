@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+
+{% block habit_list %}
+
+<div class="relative overflow-x-auto shadow-md sm:rounded-lg">
+    <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+        <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+            <tr>
+                <th scope="col" class="px-6 py-3">
+                    Habit name
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Category
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Units
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Goal
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Update
+                </th>
+                <th scope="col" class="px-6 py-3">
+                    Delete
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+			{% for habit in habit_list %}
+            <tr class="bg-white border-b dark:bg-gray-900 dark:border-gray-700">
+                <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+					<a href="{% url 'habit_details' habit.id %}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">{{habit.name}}</a>
+                </th>
+                <td class="px-6 py-4">
+                    {{habit.category}}
+                </td>
+                <td class="px-6 py-4">
+                    {{habit.units}}
+                </td>
+                <td class="px-6 py-4">
+                    {{habit.goal}}
+                </td>
+                <td class="px-6 py-4">
+                    <a href="{% url 'update_habit' habit.id %}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Update</a>
+                </td>
+                <td class="px-6 py-4">
+                    <a href="{% url 'delete_habit' habit.id %}" class="font-medium text-blue-600 dark:text-blue-500 hover:underline">Delete</a>
+                </td>
+            </tr>
+			{% endfor %}
+        </tbody>
+    </table>
+</div>
+
+{% endblock habit_list %}
