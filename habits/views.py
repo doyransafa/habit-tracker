@@ -1,15 +1,13 @@
+from typing import Any, Dict
 from django.http import Http404
-from django.db.models.query import QuerySet
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
 from .models import Habit, HabitEntry
-from django.contrib.auth.models import User
 from .forms import HabitForm
 from django.views.generic import CreateView, DetailView, ListView, UpdateView, DeleteView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
-from calendar import Calendar
-from datetime import datetime
+from datetime import datetime, date
 
 # Create your views here.
 
@@ -40,6 +38,15 @@ class HabitDetailView(DetailView):
             raise Http404("You don't have permission to access this habit.")
 
         return habit
+    
+    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+        context = super().get_context_data(**kwargs)
+
+        today = date.today()
+
+        context['today'] = today
+
+        return context
 
 class HabitListView(LoginRequiredMixin,ListView):
     model = Habit
@@ -83,15 +90,21 @@ class UpdateHabitView(UpdateView):
         return habit
 
 
-def date_toggle(request, habit_id, date):
+def date_toggle(request, habit_id, date, quantity=1):
 
     habit = Habit.objects.get(pk=habit_id)
 
+    if habit.user != request.user:
+        raise Http404("You don't have permission to access this habit.")
+
     entry_date_obj = datetime.strptime(date, '%Y-%m-%d').date()
 
-    _, created = HabitEntry.objects.get_or_create(habit=habit, entry_date = entry_date_obj)
 
-    if not created:
-        habit.habitentry_set.filter(entry_date = date).delete()
+    if HabitEntry.objects.filter(habit=habit, entry_date=entry_date_obj).exists():
+        HabitEntry.objects.filter(habit=habit, entry_date=entry_date_obj).delete()
+    else: 
+        HabitEntry.objects.create(habit=habit, entry_date=entry_date_obj, quantity=quantity)
+        
+    print(quantity)
 
     return redirect('habit_details', pk=habit_id)

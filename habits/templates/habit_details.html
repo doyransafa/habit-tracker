@@ -1,5 +1,13 @@
 {% extends 'base.html' %} 
 {% block habit_details %}
+<form id="csrf-form">
+  {% csrf_token %}
+</form>
+<h1>Today {{today}}</h1>
+<h1>units {{habit.units}}</h1>
+<h1>Comp pct {{habit.get_goal_completed_pct}}</h1>
+{% comment %} {% with today=date.today %} {% endcomment %}
+
 
 <h1>Current Streak: {{ habit.get_current_streak }}</h1>
 <h1>Longest Streak: {{ habit.get_longest_streak }}</h1>
@@ -12,7 +20,7 @@
 	<li>
 		Days:
 			{% for entry in habit.habitentry_set.all%}
-			{{entry.entry_date}} - {{entry.quantity }} ,
+			{{entry.entry_date}} - {{entry.quantity }},
 			{% endfor %}
 	</li>
 </ul>
@@ -57,23 +65,52 @@
 			{% for year in habit.get_year_list %}
 
 			<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-				<td>Jan</td>
+				<td>{{forloop.counter}}</td>
 				{% for day in year %}
+				{% if day <= today %}
 				<td>
-					<a href="{%url 'date_toggle' habit.id day%}">
+					{% comment %} <a href="{%url 'date_toggle' habit.id day%}">
 						<input
 						type="button"
 						id="{{day}}"
 						name="{{day}}"
 						value="{% if day in habit.get_entry_dates %} O {%else%} X {% endif %}"
 						{% if day in habit.get_entry_dates %}
-						class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-2 mr-1 mb-1"
+						class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-2 mr-1 mb-1 cursor-pointer"
 						{%else%}
-						class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2 py-2 mr-1 mb-1"
+						class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2 py-2 mr-1 mb-1 cursor-pointer"
+						{% if habit.units != 'check' %}
+						data-habit-id="{{ habit.id }}"
+						data-day="{{ day }}"
+						data-habit-name="{{ habit.name }}"
+						{% endif %}
 						{% endif %}
 						>
-					</a>
+					</a> {% endcomment %}
+					<button
+					id="{{habit.id}}"
+					day="{{day}}"
+					name="{{habit.name}}"
+					data-prompt-required="{% if day in habit.get_entry_dates %}false{%else%}{% if habit.units != 'check' %}true{%else%}false{%endif%}{%endif%}"
+					{% if day in habit.get_entry_dates %}
+					class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-2 mr-1 mb-1 cursor-pointer"
+					{%else%}
+					class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 mr-1 mb-1 cursor-pointer"
+					{%endif%}>
+					{% if day in habit.get_entry_dates %} O {% else %} X {% endif %}	
+					</button>
 				</td>
+				{% else %}
+				<td>
+						<input
+						type="button"
+						id="{{day}}"
+						name="{{day}}"
+						value="&nbsp&nbsp&nbsp&nbsp&nbsp"
+						class="text-white bg-gray-400 cursor-not-allowed font-medium rounded-lg text-sm px-2 py-2 mr-1 mb-1"
+						disabled>
+				</td>
+				{% endif %}
 				{% endfor %}
 			</tr>
 
@@ -81,6 +118,65 @@
 		</tbody>
 	</table>
 </div>
+
+
+
+<script>
+
+	function updateEntry(habitId, day, quantity){
+		const formattedDate = formatDate(new Date(day));
+		const url = `/habit_add_remove/${habitId}/${formattedDate}/${quantity}`;
+		const csrfToken = document.querySelector('#csrf-form input[name="csrfmiddlewaretoken"]').value;
+    	fetch(url, {
+        	method: 'POST',
+			headers: {
+				'X-CSRFToken': csrfToken, // Include the CSRF token in the request headers
+				'Content-Type': 'application/json', // Set the content type if needed
+			}
+    	}).then(response => {
+			if (response.ok) {
+			window.location.reload();
+			} else {
+			throw new Error('Network response was not ok');
+			}
+		});
+	};
+
+	function formatDate(date) {
+    const options = { year: 'numeric', month: '2-digit', day: '2-digit' };
+    return date.toLocaleDateString('zh-Hans-CN', options).replace(/\//g, '-');
+}
+
+
+	document.querySelectorAll('button').forEach(button => {
+		button.addEventListener('click', function() {
+			const habitId = button.getAttribute('id');
+			const day = button.getAttribute('day');
+			const habitName = button.getAttribute('name');
+			const promptRequired = button.getAttribute('data-prompt-required') === 'true';
+			if (promptRequired) {
+				let isNumeric = false
+				while (isNumeric === false) {
+					const inputValue = prompt(`How many units of ${habitName} did you achieve on ${day}`);
+					if (inputValue === null) {
+						break
+					} 
+					const numericValue = parseFloat(inputValue)
+					if (!isNaN(numericValue)) {
+						updateEntry(habitId, day, numericValue);
+						isNumeric = true
+					} else {
+						alert('Please enter a valid numeric value.');
+					}
+				}
+			} else {
+				updateEntry(habitId, day, 1);
+			}
+		});
+	});
+
+</script>
+
 
 
 {% endblock habit_details %}

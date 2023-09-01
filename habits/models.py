@@ -69,7 +69,20 @@ class Habit(models.Model):
                     longest_streak = max(longest_streak, streak)
 
         return longest_streak
+    
+    def get_goal_completed_pct(self):
+        if self.units != 'check':
+            quantity_list = self.habitentry_set.values_list('quantity', flat=True)
+            goals_met = [quantity for quantity in quantity_list if quantity >= self.goal]
+            print(len(quantity_list), len(goals_met))
 
+            try:
+                goal_completed_pct = round((len(goals_met) / len(quantity_list) * 100), 2)
+            except ZeroDivisionError:
+                goal_completed_pct = 0
+
+            return goal_completed_pct
+        ### might implement checked days / (starting day - today) later. now i cannot set a starting day to test.
 
 
 class HabitEntry(models.Model):
@@ -78,6 +91,8 @@ class HabitEntry(models.Model):
     entry_date = models.DateField()
     quantity = models.PositiveIntegerField(default=1)
 
+    class Meta:
+        unique_together = ('habit', 'entry_date')
+
     def __str__(self):
         return f'{self.habit.name} - {self.entry_date}'
-    
