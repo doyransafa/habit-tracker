@@ -1,0 +1,11 @@
+{% extends 'base.html' %}
+
+{% block calendar %}
+
+{% for day in days %}
+    <input type="checkbox" id="vehicle1" name="vehicle1" value="{{day}}">
+    <label for="vehicle1"> {{day}}</label><br>
+{% endfor %}
+
+
+{% endblock calendar %}

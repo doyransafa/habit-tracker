@@ -88,8 +88,13 @@
 			</div>
 		</nav>
 
-		{% block habit_list %} {% endblock habit_list %} {% block login %} {%
-		endblock login %} {% if messages %} {% for message in messages %}
+		{% block habit_details %} {% endblock habit_details %} 
+		{% block habit_list %} {% endblock habit_list %} 
+		{% block login %} {% endblock login %} 
+		{% block register %} {% endblock register %} 
+		{% block calendar %} {% endblock calendar %} 
+		{% if messages %} 
+		{% for message in messages %}
 		<div
 			id="alert-3"
 			class="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"

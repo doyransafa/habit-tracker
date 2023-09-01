@@ -1,6 +1,86 @@
+{% extends 'base.html' %} 
+{% block habit_details %}
+
+<h1>Current Streak: {{ habit.get_current_streak }}</h1>
+<h1>Longest Streak: {{ habit.get_longest_streak }}</h1>
+
 <ul>
 	<li>Name: {{habit.name}}</li>
 	<li>Category: {{habit.category}}</li>
 	<li>Units: {{habit.units}}</li>
 	<li>Goal: {{habit.goal}}</li>
+	<li>
+		Days:
+			{% for entry in habit.habitentry_set.all%}
+			{{entry.entry_date}} - {{entry.quantity }} ,
+			{% endfor %}
+	</li>
 </ul>
+
+<div class="relative overflow-x-auto">
+	<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+		<thead class="text-xs text-gray-700 uppercase bg-gray-50">
+			<th class="px-1 py-3">Month</th>
+			<th class="px-1 py-3">1</th>
+			<th class="px-1 py-3">2</th>
+			<th class="px-1 py-3">3</th>
+			<th class="px-1 py-3">4</th>
+			<th class="px-1 py-3">5</th>
+			<th class="px-1 py-3">6</th>
+			<th class="px-1 py-3">7</th>
+			<th class="px-1 py-3">8</th>
+			<th class="px-1 py-3">9</th>
+			<th class="px-1 py-3">10</th>
+			<th class="px-1 py-3">11</th>
+			<th class="px-1 py-3">12</th>
+			<th class="px-1 py-3">13</th>
+			<th class="px-1 py-3">14</th>
+			<th class="px-1 py-3">15</th>
+			<th class="px-1 py-3">16</th>
+			<th class="px-1 py-3">17</th>
+			<th class="px-1 py-3">18</th>
+			<th class="px-1 py-3">19</th>
+			<th class="px-1 py-3">20</th>
+			<th class="px-1 py-3">21</th>
+			<th class="px-1 py-3">22</th>
+			<th class="px-1 py-3">23</th>
+			<th class="px-1 py-3">24</th>
+			<th class="px-1 py-3">25</th>
+			<th class="px-1 py-3">26</th>
+			<th class="px-1 py-3">27</th>
+			<th class="px-1 py-3">28</th>
+			<th class="px-1 py-3">29</th>
+			<th class="px-1 py-3">30</th>
+			<th class="px-1 py-3">31</th>
+		</thead>
+		<tbody>
+			{% for year in habit.get_year_list %}
+
+			<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+				<td>Jan</td>
+				{% for day in year %}
+				<td>
+					<a href="{%url 'date_toggle' habit.id day%}">
+						<input
+						type="button"
+						id="{{day}}"
+						name="{{day}}"
+						value="{% if day in habit.get_entry_dates %} O {%else%} X {% endif %}"
+						{% if day in habit.get_entry_dates %}
+						class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-2 py-2 mr-1 mb-1"
+						{%else%}
+						class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-2 py-2 mr-1 mb-1"
+						{% endif %}
+						>
+					</a>
+				</td>
+				{% endfor %}
+			</tr>
+
+			{% endfor %}
+		</tbody>
+	</table>
+</div>
+
+
+{% endblock habit_details %}
