@@ -9,13 +9,19 @@
 			href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.css"
 			rel="stylesheet"
 		/>
+		<script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+		<script
+			src="https://unpkg.com/htmx.org@1.9.5"
+			integrity="sha384-xcuj3WpfgjlKF+FXhSQFQ0ZNr39ln+hwjN3npfM9VBnUskLolQAcN80McRIVOPuO"
+			crossorigin="anonymous"
+		></script>
 	</head>
 	<body>
-		<nav class="bg-white border-gray-200 dark:bg-gray-900">
+		<nav class="bg-orange-300 border-gray-200 dark:bg-gray-900 top-0">
 			<div
 				class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4"
 			>
-				<a href="" class="flex items-center">
+				<a href="{%url 'habit_list'%}" class="flex items-center">
 					<span
 						class="self-center text-2xl font-semibold whitespace-nowrap dark:text-white"
 						>Habit Tracker</span
@@ -50,11 +56,11 @@
 					id="navbar-default"
 				>
 					<ul
-						class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
+						class="font-medium flex flex-col p-4 md:p-0 mt-4 border border-gray-100 rounded-lg bg-orange-300 md:flex-row md:space-x-8 md:mt-0 md:border-0 dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700"
 					>
 						<li>
 							<a
-								href="#"
+								href="{%url 'habit_list'%}"
 								class="block py-2 pl-3 pr-4 text-white bg-blue-700 rounded md:bg-transparent md:text-blue-700 md:p-0 dark:text-white md:dark:text-blue-500"
 								aria-current="page"
 								>Home</a
@@ -62,7 +68,7 @@
 						</li>
 						<li>
 							<a
-								href="#"
+								href="{% url 'overall_stats'%}"
 								class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-white md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent"
 								>Stats</a
 							>
@@ -88,13 +94,7 @@
 			</div>
 		</nav>
 
-		{% block habit_details %} {% endblock habit_details %} 
-		{% block habit_list %} {% endblock habit_list %} 
-		{% block login %} {% endblock login %} 
-		{% block register %} {% endblock register %} 
-		{% block calendar %} {% endblock calendar %} 
-		{% if messages %} 
-		{% for message in messages %}
+		{% if messages %} {% for message in messages%}
 		<div
 			id="alert-3"
 			class="flex items-center p-4 mb-4 text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
@@ -140,6 +140,82 @@
 
 		{% endfor %} {% endif %}
 
+		<div class="items-center p-52">
+			{% block habit_details %} {% endblock habit_details %} 
+			{% block habit_list %} {% endblock habit_list %} 
+			{% block login %} {% endblock login %} 
+			{% block register %} {% endblock register %} 
+			{% block overall_stats %} {% endblock overall_stats %} 
+			{% block habit_stats %} {% endblock habit_stats %}
+		</div>
+
+		<script>
+			function updateEntry(habitId, day, quantity) {
+				const formattedDate = formatDate(new Date(day))
+				const url = `/habit_add_remove/${habitId}/${formattedDate}/${quantity}`
+				const csrfToken = document.querySelector(
+					'#csrf-form input[name="csrfmiddlewaretoken"]',
+				).value
+				fetch(url, {
+					method: "POST",
+					headers: {
+						"X-CSRFToken": csrfToken, // Include the CSRF token in the request headers
+						"Content-Type": "application/json", // Set the content type if needed
+					},
+				}).then((response) => {
+					if (response.ok) {
+						window.location.reload()
+					} else {
+						throw new Error("Network response was not ok")
+					}
+				})
+			}
+
+			function formatDate(date) {
+				const options = {
+					year: "numeric",
+					month: "2-digit",
+					day: "2-digit",
+				}
+				return date
+					.toLocaleDateString("zh-Hans-CN", options)
+					.replace(/\//g, "-")
+			}
+
+			document.querySelectorAll("button").forEach((button) => {
+				button.addEventListener("click", function () {
+					const habitId = button.getAttribute("id")
+					const day = button.getAttribute("day")
+					const habitName = button.getAttribute("name")
+					const promptRequired =
+						button.getAttribute("data-prompt-required") === "true"
+					if (promptRequired) {
+						let isNumeric = false
+						while (isNumeric === false) {
+							const inputValue = prompt(
+								`How many units of ${habitName} did you achieve on ${day}`,
+							)
+							if (inputValue === null) {
+								break
+							}
+							const numericValue = parseFloat(inputValue)
+							if (!isNaN(numericValue)) {
+								updateEntry(habitId, day, numericValue)
+								isNumeric = true
+							} else {
+								alert("Please enter a valid numeric value.")
+							}
+						}
+					} else {
+						updateEntry(habitId, day, 1)
+					}
+				})
+			})
+
+		document.body.addEventListener('htmx:configRequest', function(event) {
+			event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+		});
+		</script>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/1.8.1/flowbite.min.js"></script>
 	</body>
 </html>

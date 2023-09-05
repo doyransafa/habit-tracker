@@ -1,0 +1,15 @@
+<h1 class="text-center"> Longest Streak by Habits </h1>
+<canvas id="longest_streak_by_habits" class="w-1/2 h-48 mb-3 border border-gray-200 rounded-lg"></canvas>
+
+<script>
+	let overall_chart_1 = document.getElementById("longest_streak_by_habits").getContext("2d")
+
+	fetch("{% url 'longest_streak_by_habits' %}")
+		.then((response) => response.json())
+		.then((data) => {
+			let longest_streak_by_habits = new Chart(overall_chart_1, data)
+		})
+		.catch((error) => {
+			console.error("Error fetching data:", error)
+		})
+</script>

@@ -1,0 +1,63 @@
+{% extends 'base.html' %} {% block overall_stats %}
+
+
+
+<div class="flex flex-row-reverse h-full">
+<div class="basis-1/4">
+	<div
+		class="h-full mt-36 px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800"
+	>
+		<ul class="space-y-2 font-medium">
+			<li>
+				<a
+					href="{%url 'overall_stats'%}"
+					class="flex items-center p-2 text-gray-900 rounded-lg bg-orange-300 hover:bg-orange-50 group"
+				>
+					<span class="mx-3">Overall</span>
+				</a>
+			</li>
+            {% for habit in habits %}
+            
+            <li>
+				<a
+					href="{% url 'habit_stats' habit.id month%}"
+					class="flex items-center p-2 text-gray-900 rounded-lg bg-orange-300 hover:bg-orange-50 group"
+				>
+					<span class="mx-3">{{habit.name}}</span>
+				</a>
+			</li>
+
+            {% endfor %}
+		</ul>
+	</div>
+</div>
+
+<div class="basis-3/4">
+
+    <div class="grid mb-3 border border-gray-200 rounded-lg md:grid-cols-3 gap-3">
+        <div class="border border-gray-200 rounded-lg h-24 gap">{{habits|length}}</div>
+        <div class="border border-gray-200 rounded-lg">{{longest_streak}}</div>
+        <div class="border border-gray-200 rounded-lg">{{goal_reach_total}}</div>
+    </div>
+    
+    <div
+	class="grid mb-8 border border-gray-200 rounded-lg md:grid-cols-2 "
+    >
+	<div class="p-4 sm:ml-32">
+        {% include 'partials/overall/longest_streak_by_habits.html' %}
+	</div>
+	<div class="p-4 sm:ml-32">
+        {% include 'partials/overall/total_records.html' %}
+	</div>
+	<div class="p-4 sm:ml-32 ">
+        {% include 'partials/overall/goals_reached.html' %}
+	</div>
+</div>
+
+</div>
+</div>
+
+
+
+
+{% endblock overall_stats %}

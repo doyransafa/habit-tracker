@@ -1,0 +1,15 @@
+<h1 class="text-center"> Goal Reach % by Habits </h1>
+<canvas id="streak_trend" class="w-1/2 h-48 mb-3 border border-gray-200 rounded-lg"></canvas>
+
+<script>
+    let habit_chart_2 = document.getElementById("streak_trend").getContext("2d")
+
+    fetch("{% url 'streak_trend' habit.id month.int %}")
+        .then((response) => response.json())
+        .then((data) => {
+            let streak_trend = new Chart(habit_chart_2, data)
+        })
+        .catch((error) => {
+            console.error("Error fetching data:", error)
+        })
+</script>

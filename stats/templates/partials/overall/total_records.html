@@ -1,0 +1,15 @@
+<h1 class="text-center"> Total Records by Habit </h1>
+<canvas id="total_records" class="w-1/2 h-48 mb-3 border border-gray-200 rounded-lg"></canvas>
+
+<script>
+	let overall_chart_2 = document.getElementById("total_records").getContext("2d")
+
+	fetch("{% url 'total_records' %}")
+		.then((response) => response.json())
+		.then((data) => {
+			let total_records = new Chart(overall_chart_2, data)
+		})
+		.catch((error) => {
+			console.error("Error fetching data:", error)
+		})
+</script>
