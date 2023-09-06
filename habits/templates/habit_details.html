@@ -1,102 +1,155 @@
 {% extends 'base.html' %} 
+{% load custom_filters %}
+{% block title %} Habit Details - {{habit.name}} {% endblock title %}
 {% block habit_details %}
 <form id="csrf-form">
   {% csrf_token %}
 </form>
-<h1>Today {{today}}</h1>
-<h1>units {{habit.units}}</h1>
-<h1>Comp pct {{habit.get_goal_completed_pct}}</h1>
 
-<h1>Current Streak: {{ habit.get_current_streak }}</h1>
-<h1>Longest Streak: {{ habit.get_longest_streak }}</h1>
+<div class="flex mt-2 gap-2">
+	<div class="basis-1/6">
+		<div
+			class="h-full px-3 py-4 overflow-y-auto bg-gray-50 dark:bg-gray-800"
+		>
+			<ul class="space-y-2 font-medium">
 
-<ul>
-	<li>Name: {{habit.name}}</li>
-	<li>Category: {{habit.category}}</li>
-	<li>Units: {{habit.units}}</li>
-	<li>Goal: {{habit.goal}}</li>
-	<li>
-		Days:
-			{% for entry in habit.habitentry_set.all%}
-			{{entry.entry_date}} - {{entry.quantity }},
-			{% endfor %}
-	</li>
-</ul>
+				<div class="flex justify-evenly mb-4">
+				<li>
+					<a
+						href="{% url 'update_habit' habit.id%}"
+						class=" items-center p-2 text-gray-900 rounded-lg bg-blue-300 hover:bg-blue-400"
+					>
+					Update Habit
+					</a>
+				</li>
+				<li>
+					<a 
+					href="{% url 'habit_stats' habit.id month%}"
+					class=" items-center p-2 text-gray-900 rounded-lg bg-blue-300 hover:bg-blue-400"
+					>	
+						Show Stats
+					</a>
+				</li>
+				</div>
+				
+				{% for habit in user_habits %}
+				
+				<li>
+					<a
+						href="{%url 'habit_details' habit.id%}"
+						{% if active_habit_id == habit.id %}
+						class="flex items-center p-2 text-gray-900 rounded-lg bg-orange-300 hover:bg-orange-200 group"
+						{%else%}
+						class="flex items-center p-2 text-gray-900 rounded-lg bg-gray-300 hover:bg-orange-200 group"
+						{% endif %}
+					>
+						<span class="mx-3">{{habit.name}}</span>
+					</a>
+				</li>
 
-<div class="relative overflow-x-auto">
-	<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
-		<thead class="text-xs text-gray-700 uppercase bg-gray-50">
-			<th class="px-1 py-3">Month</th>
-			<th class="px-1 py-3">1</th>
-			<th class="px-1 py-3">2</th>
-			<th class="px-1 py-3">3</th>
-			<th class="px-1 py-3">4</th>
-			<th class="px-1 py-3">5</th>
-			<th class="px-1 py-3">6</th>
-			<th class="px-1 py-3">7</th>
-			<th class="px-1 py-3">8</th>
-			<th class="px-1 py-3">9</th>
-			<th class="px-1 py-3">10</th>
-			<th class="px-1 py-3">11</th>
-			<th class="px-1 py-3">12</th>
-			<th class="px-1 py-3">13</th>
-			<th class="px-1 py-3">14</th>
-			<th class="px-1 py-3">15</th>
-			<th class="px-1 py-3">16</th>
-			<th class="px-1 py-3">17</th>
-			<th class="px-1 py-3">18</th>
-			<th class="px-1 py-3">19</th>
-			<th class="px-1 py-3">20</th>
-			<th class="px-1 py-3">21</th>
-			<th class="px-1 py-3">22</th>
-			<th class="px-1 py-3">23</th>
-			<th class="px-1 py-3">24</th>
-			<th class="px-1 py-3">25</th>
-			<th class="px-1 py-3">26</th>
-			<th class="px-1 py-3">27</th>
-			<th class="px-1 py-3">28</th>
-			<th class="px-1 py-3">29</th>
-			<th class="px-1 py-3">30</th>
-			<th class="px-1 py-3">31</th>
-		</thead>
-		<tbody>
-			{% for year in habit.get_year_list %}
-
-			<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
-				<td>{{forloop.counter}}</td>
-				{% for day in year %}
-				{% if day <= today %}
-				<td>
-					<button
-					id="{{habit.id}}"
-					day="{{day}}"
-					name="{{habit.name}}"
-					data-prompt-required="{% if day in habit.get_entry_dates %}false{%else%}{% if habit.units != 'check' %}true{%else%}false{%endif%}{%endif%}"
-					{% if day in habit.get_entry_dates %}
-					class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-2 mr-1 mb-1 cursor-pointer"
-					{%else%}
-					class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 mr-1 mb-1 cursor-pointer"
-					{%endif%}>
-					{% if day in habit.get_entry_dates %} O {% else %} X {% endif %}	
-					</button>
-				</td>
-				{% else %}
-				<td>
-						<input
-						type="button"
-						id="{{day}}"
-						name="{{day}}"
-						value="&nbsp&nbsp&nbsp&nbsp&nbsp"
-						class="text-white bg-gray-400 cursor-not-allowed font-medium rounded-lg text-sm px-2 py-2 mr-1 mb-1"
-						disabled>
-				</td>
-				{% endif %}
 				{% endfor %}
-			</tr>
+			</ul>
+		</div>
+	</div>
 
-			{% endfor %}
-		</tbody>
-	</table>
+	<div class="basis-5/6">
+
+	<div class="grid mb-3 border border-gray-200 bg-indigo-100 rounded-lg md:grid-cols-5 gap-1">
+			<div class="border border-gray-200 bg-indigo-200 rounded-md h-24 gap p-4 m-1">
+				<p class="text-base text-center"> Habit Name: <br> <span class="text-2xl font-bold"> {{habit.name}} </span> </p>
+			</div>
+			<div class="border border-gray-200 bg-indigo-200 rounded-md h-24 gap p-4 m-1">
+				<p class="text-base text-center"> Daily Goal: <br> <span class="text-2xl font-bold"> {{habit.goal}} </span> </p>
+			</div>
+			<div class="border border-gray-200 bg-indigo-200 rounded-md h-24 gap p-4 m-1">
+				<p class="text-base text-center"> Longest Streak: <br> <span class="text-2xl font-bold"> {{habit.get_longest_streak}} </span> days </p>
+			</div>
+			<div class="border border-gray-200 bg-indigo-200 rounded-md h-24 gap p-4 m-1">
+			<p class="text-base text-center"> Current Streak: <br> <span class="text-2xl font-bold"> {{habit.get_current_streak}} </span> days </p>
+			</div> 
+			<div class="border border-gray-200 bg-indigo-200 rounded-md h-24 gap p-4 m-1">
+			<p class="text-base text-center"> Goal Completion Percentage: <br> <span class="text-2xl font-bold"> {{habit.get_goal_completed_pct}} </span> % </p>
+			</div> 
+	</div>
+
+	<div class="relative overflow-x-auto">
+		<table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+			<thead class="text-xs text-gray-700 uppercase bg-gray-50 text-center">
+				<th class="px-1 py-3">Month</th>
+				<th class="px-1 py-3">1</th>
+				<th class="px-1 py-3">2</th>
+				<th class="px-1 py-3">3</th>
+				<th class="px-1 py-3">4</th>
+				<th class="px-1 py-3">5</th>
+				<th class="px-1 py-3">6</th>
+				<th class="px-1 py-3">7</th>
+				<th class="px-1 py-3">8</th>
+				<th class="px-1 py-3">9</th>
+				<th class="px-1 py-3">10</th>
+				<th class="px-1 py-3">11</th>
+				<th class="px-1 py-3">12</th>
+				<th class="px-1 py-3">13</th>
+				<th class="px-1 py-3">14</th>
+				<th class="px-1 py-3">15</th>
+				<th class="px-1 py-3">16</th>
+				<th class="px-1 py-3">17</th>
+				<th class="px-1 py-3">18</th>
+				<th class="px-1 py-3">19</th>
+				<th class="px-1 py-3">20</th>
+				<th class="px-1 py-3">21</th>
+				<th class="px-1 py-3">22</th>
+				<th class="px-1 py-3">23</th>
+				<th class="px-1 py-3">24</th>
+				<th class="px-1 py-3">25</th>
+				<th class="px-1 py-3">26</th>
+				<th class="px-1 py-3">27</th>
+				<th class="px-1 py-3">28</th>
+				<th class="px-1 py-3">29</th>
+				<th class="px-1 py-3">30</th>
+				<th class="px-1 py-3">31</th>
+			</thead>
+			<tbody>
+				{% for year in habit.get_year_list %}
+
+				<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+					<td class="text-gray-700 bg-gray-50 font-bold">{{ months|index:forloop.counter0 }}</td>
+					{% for day in year %}
+					{% if day <= today %}
+					<td>
+						<button
+						id="{{habit.id}}"
+						day="{{day}}"
+						name="{{habit.name}}"
+						data-prompt-required="{% if day in habit.get_entry_dates %}false{%else%}{% if habit.units != 'check' %}true{%else%}false{%endif%}{%endif%}"
+						{% if day in habit.get_entry_dates %}
+						class="text-white bg-green-700 hover:bg-green-800 focus:ring-4 focus:ring-green-300 font-medium rounded-lg text-sm px-3 py-2 mr-1 mb-1 cursor-pointer"
+						{%else%}
+						class="text-white bg-red-700 hover:bg-red-800 focus:ring-4 focus:ring-red-300 font-medium rounded-lg text-sm px-3 py-2 mr-1 mb-1 cursor-pointer"
+						{%endif%}>
+						{% if day in habit.get_entry_dates %} O {% else %} X {% endif %}	
+						</button>
+					</td>
+					{% else %}
+					<td>
+							<input
+							type="button"
+							id="{{day}}"
+							name="{{day}}"
+							value="&nbsp&nbsp&nbsp&nbsp&nbsp"
+							class="text-white bg-gray-400 cursor-not-allowed font-medium rounded-lg text-sm px-2 py-2 mr-1 mb-1"
+							disabled>
+					</td>
+					{% endif %}
+					{% endfor %}
+				</tr>
+
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
+
+	</div>
+	</div>
 </div>
 
 {% endblock habit_details %}

@@ -10,9 +10,3 @@ class RegistrationForm(UserCreationForm):
         model = User
         fields = ['username','email']
 
-    # username = forms.CharField(min_length=5, max_length=50, required=True)
-    # first_name = forms.CharField(max_length=50, required=True)
-    # last_name = forms.CharField(max_length=50, required=True)
-    # email = forms.EmailField(required=True)
-    # password_1 = forms.PasswordInput()
-

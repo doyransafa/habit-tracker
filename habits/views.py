@@ -9,7 +9,9 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from datetime import datetime, date
 
-# Create your views here.
+
+months = ['January', 'February', 'March', 'April', 'May', 'June',
+          'July', 'August', 'September', 'October', 'November', 'December']
 
 
 class CreateHabitView(CreateView):
@@ -43,15 +45,23 @@ class HabitDetailView(DetailView):
         context = super().get_context_data(**kwargs)
 
         today = date.today()
+        month = today.month
+
+        user_habits = Habit.objects.all().filter(user = self.request.user)
 
         context['today'] = today
+        context['month'] = month
+        context['months'] = months
+        context['user_habits'] = user_habits
+        context['active_habit_id'] = self.object.id
 
         return context
 
-class HabitListView(LoginRequiredMixin,ListView):
+class HabitListView(LoginRequiredMixin, ListView):
     model = Habit
     template_name = 'index.html'
     context_object_name = 'habit_list'
+    login_url = "auth/login"
 
     def get_queryset(self):
         return Habit.objects.filter(user=self.request.user)
@@ -104,7 +114,5 @@ def date_toggle(request, habit_id, date, quantity=1):
         HabitEntry.objects.filter(habit=habit, entry_date=entry_date_obj).delete()
     else: 
         HabitEntry.objects.create(habit=habit, entry_date=entry_date_obj, quantity=quantity)
-        
-    print(quantity)
 
     return redirect('habit_details', pk=habit_id)

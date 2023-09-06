@@ -15,7 +15,7 @@ class Habit(models.Model):
     category = models.CharField(max_length=150)
     created_at = models.DateField(auto_now_add=True)
     units = models.CharField(max_length=50, choices=UNIT_CHOICES)
-    goal = models.PositiveIntegerField()
+    goal = models.PositiveIntegerField(help_text="If you select 'Check' as the units, the goal will be set to 1 automatically.")
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     def __str__(self):

@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse
 from habits.models import Habit, HabitEntry
 from datetime import date, timedelta
+from django.contrib.auth.decorators import login_required
 
 # Create your views here.
 
@@ -11,6 +12,7 @@ months = ['January', 'February', 'March', 'April', 'May', 'June',
           'July', 'August', 'September', 'October', 'November', 'December']
 
 
+@login_required
 def overall_stats(request):
 
     habits = Habit.objects.all().filter(user=request.user.id)
@@ -154,7 +156,8 @@ def habit_stats(request, pk, month):
             'int' : month,
             'previous' : month - 1 if month > 1 else month,
             'next': month + 1 if month < 12 else month,
-        }
+        },
+        'active_habit_id' : pk,
     }
 
     return render(request, 'habit_stats.html', context)
@@ -318,12 +321,4 @@ def streak_trend(request, pk, month):
             }
         },
     }
-
-    print(entry_dates)
-    print(entry_tuples)
-    print(monthly_entry_tuples)
-    print(monthly_entries)
-    print(monthly_entry_values)
-    print(values)
-
     return JsonResponse(chart_json)
