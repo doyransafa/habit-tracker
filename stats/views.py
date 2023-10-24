@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from habits.models import Habit, HabitEntry
+from habits.models import Habit
 from datetime import date, timedelta
 from django.contrib.auth.decorators import login_required
 

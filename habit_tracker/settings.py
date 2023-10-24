@@ -75,16 +75,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'habit_tracker.wsgi.application'
 
+MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        "ENGINE": "django.db.backends.sqlite3",
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
+
+# 'ENGINE': 'django.db.backends.postgresql',
+# 'NAME': 'railway',
+# 'USER': 'postgres',
+# 'PASSWORD': 'DbdCI5ntcGgGjddhnkHr',
+# 'HOST': 'containers-us-west-81.railway.app',
+# 'PORT': '5939',
 
 
 # Password validation
@@ -111,7 +119,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Turkey'
 
 USE_I18N = True
 

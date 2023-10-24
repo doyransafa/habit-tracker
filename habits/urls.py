@@ -7,6 +7,5 @@ urlpatterns = [
     path('habit/update/<pk>', UpdateHabitView.as_view(), name='update_habit'),
     path('habit/delete/<pk>', DeleteHabitView.as_view(), name='delete_habit'),
     path('habit/details/<pk>', HabitDetailView.as_view(), name='habit_details'),
-
-    path('habit_add_remove/<int:habit_id>/<str:date>/<int:quantity>', date_toggle, name='date_toggle') 
+    path('habit_add_remove/<int:habit_id>/<str:date>/<int:quantity>', date_toggle, name='date_toggle'),
 ]

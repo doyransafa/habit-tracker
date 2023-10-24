@@ -1,4 +1,4 @@
-from typing import Any, Dict
+
 from django.http import Http404
 from django.shortcuts import render, redirect
 from django.urls import reverse_lazy
@@ -41,7 +41,7 @@ class HabitDetailView(DetailView):
 
         return habit
     
-    def get_context_data(self, **kwargs: Any) -> Dict[str, Any]:
+    def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
         today = date.today()
@@ -108,7 +108,6 @@ def date_toggle(request, habit_id, date, quantity=1):
         raise Http404("You don't have permission to access this habit.")
 
     entry_date_obj = datetime.strptime(date, '%Y-%m-%d').date()
-
 
     if HabitEntry.objects.filter(habit=habit, entry_date=entry_date_obj).exists():
         HabitEntry.objects.filter(habit=habit, entry_date=entry_date_obj).delete()
